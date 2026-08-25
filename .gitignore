@@ -11,6 +11,19 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+.vscode/
+
+# Local environment and credentials (commit example templates explicitly)
+.env
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.p12
+*.keystore
+*.jks
+**/key.properties
+**/local.properties
 
 # IntelliJ related
 *.iml
@@ -32,6 +45,7 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
+flutter_*.png
 
 # Symbolication related
 app.*.symbols

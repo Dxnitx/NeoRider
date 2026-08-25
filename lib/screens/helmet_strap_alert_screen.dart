@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/neorider_bottom_nav.dart';
+import '../utils/responsive.dart';
 
 class HelmetStrapAlertScreen extends StatelessWidget {
   const HelmetStrapAlertScreen({super.key});
@@ -11,6 +12,7 @@ class HelmetStrapAlertScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = NeoResponsive.of(context);
     return Scaffold(
       backgroundColor: bg,
       body: SafeArea(
@@ -19,7 +21,8 @@ class HelmetStrapAlertScreen extends StatelessWidget {
             _topBar(context),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(18),
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.all(responsive.horizontalPadding),
                 child: Column(
                   children: [
                     _alertCard(),
@@ -31,7 +34,7 @@ class HelmetStrapAlertScreen extends StatelessWidget {
                     _tipCard(),
                     const SizedBox(height: 18),
                     _actionsCard(),
-                    const SizedBox(height: 120),
+                    SizedBox(height: responsive.sectionSpacing),
                   ],
                 ),
               ),
@@ -41,9 +44,7 @@ class HelmetStrapAlertScreen extends StatelessWidget {
       ),
       bottomNavigationBar: const Padding(
         padding: EdgeInsets.all(16),
-        child: NeoRiderBottomNav(
-          activeTab: NeoRiderNavTab.alerts,
-        ),
+        child: NeoRiderBottomNav(activeTab: NeoRiderNavTab.alerts),
       ),
     );
   }
@@ -78,22 +79,22 @@ class HelmetStrapAlertScreen extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 120,
-            height: 120,
+            width: 72,
+            height: 72,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: blue.withValues(alpha: 0.12),
             ),
-            child: const Icon(Icons.notifications, color: blue, size: 64),
+            child: const Icon(Icons.notifications, color: blue, size: 42),
           ),
-          const SizedBox(width: 24),
+          const SizedBox(width: 14),
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Helmet Strap Reminder',
-                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 10),
                 Row(
@@ -113,7 +114,11 @@ class HelmetStrapAlertScreen extends StatelessWidget {
                 SizedBox(height: 16),
                 Text(
                   'Please fasten your helmet strap\nfor your safety.',
-                  style: TextStyle(color: Colors.grey, fontSize: 18, height: 1.4),
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 18,
+                    height: 1.4,
+                  ),
                 ),
                 SizedBox(height: 18),
                 Text(
@@ -142,8 +147,10 @@ class HelmetStrapAlertScreen extends StatelessWidget {
           const SizedBox(height: 24),
           const Divider(),
           const SizedBox(height: 24),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+          const Wrap(
+            alignment: WrapAlignment.spaceAround,
+            runSpacing: 18,
+            spacing: 18,
             children: [
               _OverviewItem(
                 icon: Icons.access_time,

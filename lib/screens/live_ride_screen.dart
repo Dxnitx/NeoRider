@@ -1,99 +1,168 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/neorider_bottom_nav.dart';
+import '../utils/responsive.dart';
 
 class LiveRideScreen extends StatelessWidget {
   const LiveRideScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final responsive = NeoResponsive.of(context);
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-              child: Row(
-                children: const [
-                  Icon(Icons.motorcycle, size: 38),
-                  SizedBox(width: 8),
-                  Text("Speed", style: TextStyle(color: Color(0xFF408E1E), fontSize: 20, fontWeight: FontWeight.bold)),
-                  SizedBox(width: 12),
-                  Text("78 km/h", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                  Spacer(),
-                  Text("Ride Time", style: TextStyle(color: Color(0xFF408E1E), fontSize: 20, fontWeight: FontWeight.bold)),
-                  SizedBox(width: 8),
-                  Text("00:14:32", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                ],
+        bottom: false,
+        child: SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.only(bottom: responsive.sectionSpacing),
+          child: Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: responsive.horizontalPadding,
+                  vertical: 12,
+                ),
+                child: Wrap(
+                  spacing: 18,
+                  runSpacing: 10,
+                  alignment: WrapAlignment.spaceBetween,
+                  children: const [
+                    _RideMetric(
+                      icon: Icons.motorcycle,
+                      label: 'Speed',
+                      value: '78 km/h',
+                    ),
+                    _RideMetric(
+                      icon: Icons.timer_outlined,
+                      label: 'Ride Time',
+                      value: '00:14:32',
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            Container(
-              height: 70,
-              color: const Color(0xFFF24822),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.warning_amber_rounded, color: Colors.white, size: 36),
-                  SizedBox(width: 12),
-                  Text(
-                    "Speed Limit Exceeded - Slow Down!",
-                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ],
+              Container(
+                constraints: const BoxConstraints(minHeight: 64),
+                padding: EdgeInsets.symmetric(
+                  horizontal: responsive.horizontalPadding,
+                  vertical: 12,
+                ),
+                color: const Color(0xFFF24822),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: Colors.white,
+                      size: 36,
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        "Speed Limit Exceeded - Slow Down!",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
 
-            Expanded(
-              flex: 5,
-              child: Container(
+              Container(
+                height: (responsive.height * 0.38).clamp(240.0, 420.0),
                 width: double.infinity,
                 color: const Color(0xFFEAF2F8),
                 child: const Center(
                   child: Text(
                     "Map / Route Twin Area",
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black54),
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black54,
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            Expanded(
-              flex: 2,
-              child: Row(
-                children: const [
-                  Expanded(child: CameraBox(title: "Cam A  - Front")),
-                  Expanded(child: CameraBox(title: "Cam B  - Back")),
-                ],
+              SizedBox(
+                height: (responsive.width * 0.4).clamp(130.0, 190.0),
+                child: const Row(
+                  children: [
+                    Expanded(child: CameraBox(title: "Cam A  - Front")),
+                    Expanded(child: CameraBox(title: "Cam B  - Back")),
+                  ],
+                ),
               ),
-            ),
 
-            Container(
-              height: 80,
-              color: const Color(0xFF408E1E),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.turn_right, color: Colors.white, size: 42),
-                  SizedBox(width: 18),
-                  Text(
-                    "Turn right in 100m",
-                    style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
-                ],
+              Container(
+                constraints: const BoxConstraints(minHeight: 68),
+                padding: EdgeInsets.symmetric(
+                  horizontal: responsive.horizontalPadding,
+                  vertical: 12,
+                ),
+                color: const Color(0xFF408E1E),
+                child: const Row(
+                  children: [
+                    Icon(Icons.turn_right, color: Colors.white, size: 42),
+                    SizedBox(width: 18),
+                    Expanded(
+                      child: Text(
+                        "Turn right in 100m",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: const Padding(
         padding: EdgeInsets.all(16),
-        child: NeoRiderBottomNav(
-          activeTab: NeoRiderNavTab.liveRide,
-        ),
+        child: NeoRiderBottomNav(activeTab: NeoRiderNavTab.liveRide),
       ),
     );
   }
+}
+
+class _RideMetric extends StatelessWidget {
+  const _RideMetric({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Icon(icon, size: 30),
+      const SizedBox(width: 7),
+      Text(
+        label,
+        style: const TextStyle(
+          color: Color(0xFF408E1E),
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      const SizedBox(width: 7),
+      Text(
+        value,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      ),
+    ],
+  );
 }
 
 class CameraBox extends StatelessWidget {

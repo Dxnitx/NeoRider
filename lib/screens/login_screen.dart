@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
+import '../utils/responsive.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final responsive = NeoResponsive.of(context);
     return Scaffold(
       backgroundColor: Colors.white,
-
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: EdgeInsets.only(bottom: responsive.sectionSpacing),
           child: Column(
             children: [
-
               // TOP IMAGE
               SizedBox(
-                height: 350,
+                height: (responsive.height * 0.34).clamp(210.0, 350.0),
                 width: double.infinity,
                 child: Image.asset(
                   'assets/images/neorider_logo.png',
-                  fit: BoxFit.cover,
+                  fit: BoxFit.contain,
                 ),
               ),
 
@@ -28,10 +31,7 @@ class LoginScreen extends StatelessWidget {
               // TITLE
               const Text(
                 "Log In",
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 35),
@@ -109,10 +109,7 @@ class LoginScreen extends StatelessWidget {
                 onPressed: () {},
                 child: const Text(
                   "Forgot password?",
-                  style: TextStyle(
-                    color: Color(0xFF408E1E),
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(color: Color(0xFF408E1E), fontSize: 16),
                 ),
               ),
 

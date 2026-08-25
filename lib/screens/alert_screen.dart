@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/neorider_bottom_nav.dart';
+import '../utils/responsive.dart';
 import 'hard_braking_alert_screen.dart';
 import 'helmet_strap_alert_screen.dart';
 import 'high_speed_alert_screen.dart';
@@ -13,6 +14,7 @@ class AlertScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = NeoResponsive.of(context);
     return Scaffold(
       backgroundColor: dark,
       body: SafeArea(
@@ -31,7 +33,8 @@ class AlertScreen extends StatelessWidget {
                       ),
                     ),
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 125),
+                      physics: const BouncingScrollPhysics(),
+                      padding: responsive.pagePadding,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -77,12 +80,7 @@ class AlertScreen extends StatelessWidget {
 
                           Row(
                             children: [
-                              _summaryBox(
-                                Icons.info,
-                                "5",
-                                "Info",
-                                Colors.blue,
-                              ),
+                              _summaryBox(Icons.info, "5", "Info", Colors.blue),
                               const SizedBox(width: 12),
                               _summaryBox(
                                 Icons.check_circle,
@@ -227,9 +225,7 @@ class AlertScreen extends StatelessWidget {
               left: 18,
               right: 18,
               bottom: 18,
-              child: const NeoRiderBottomNav(
-                activeTab: NeoRiderNavTab.alerts,
-              ),
+              child: const NeoRiderBottomNav(activeTab: NeoRiderNavTab.alerts),
             ),
           ],
         ),
@@ -270,7 +266,11 @@ class AlertScreen extends StatelessWidget {
           Stack(
             clipBehavior: Clip.none,
             children: [
-              const Icon(Icons.notifications_none, color: Colors.white, size: 36),
+              const Icon(
+                Icons.notifications_none,
+                color: Colors.white,
+                size: 36,
+              ),
               Positioned(
                 right: -2,
                 top: -8,
@@ -299,12 +299,7 @@ class AlertScreen extends StatelessWidget {
     );
   }
 
-  Widget _summaryBox(
-    IconData icon,
-    String count,
-    String label,
-    Color color,
-  ) {
+  Widget _summaryBox(IconData icon, String count, String label, Color color) {
     return Expanded(
       child: Container(
         height: 105,
@@ -337,10 +332,7 @@ class AlertScreen extends StatelessWidget {
                 ),
                 Text(
                   label,
-                  style: const TextStyle(
-                    color: Colors.black54,
-                    fontSize: 15,
-                  ),
+                  style: const TextStyle(color: Colors.black54, fontSize: 15),
                 ),
               ],
             ),
@@ -364,102 +356,95 @@ class AlertScreen extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-      margin: const EdgeInsets.only(bottom: 18),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.055),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 88,
-            height: 88,
-            decoration: BoxDecoration(
-              color: bgColor,
-              shape: BoxShape.circle,
+        margin: const EdgeInsets.only(bottom: 18),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(22),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.055),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
             ),
-            child: Icon(icon, color: iconColor, size: 44),
-          ),
-          const SizedBox(width: 20),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 21,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF0D1522),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  desc,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.black54,
-                    height: 1.4,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  time,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black54,
-                  ),
-                ),
-              ],
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 68,
+              height: 68,
+              decoration: BoxDecoration(color: bgColor, shape: BoxShape.circle),
+              child: Icon(icon, color: iconColor, size: 36),
             ),
-          ),
+            const SizedBox(width: 14),
 
-          const SizedBox(width: 8),
-
-          Column(
-            children: [
-              Row(
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    status,
-                    style: TextStyle(
-                      color: statusColor,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                    title,
+                    style: const TextStyle(
+                      fontSize: 21,
+                      fontWeight: FontWeight.w900,
+                      color: Color(0xFF0D1522),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: statusColor,
-                      shape: BoxShape.circle,
+                  const SizedBox(height: 8),
+                  Text(
+                    desc,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.black54,
+                      height: 1.4,
                     ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    time,
+                    style: const TextStyle(fontSize: 14, color: Colors.black54),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          status,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: statusColor,
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 7),
+                      Container(
+                        width: 9,
+                        height: 9,
+                        decoration: BoxDecoration(
+                          color: statusColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 28),
-              const Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.black45,
-                size: 20,
-              ),
-            ],
-          ),
-        ],
-      ),
+            ),
+
+            const SizedBox(width: 8),
+
+            const Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.black45,
+              size: 20,
+            ),
+          ],
+        ),
       ),
     );
   }
-
 }

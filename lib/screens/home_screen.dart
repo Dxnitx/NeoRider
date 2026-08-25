@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/neorider_bottom_nav.dart';
+import '../utils/responsive.dart';
 import 'emergency_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -11,6 +12,11 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final responsive = NeoResponsive.of(context);
+    final useVerticalHero = screenWidth < 500;
+    final heroFontSize = (screenWidth * 0.095).clamp(30.0, 38.0);
+
     return Scaffold(
       backgroundColor: dark,
       body: SafeArea(
@@ -27,11 +33,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      const Icon(
-                        Icons.menu,
-                        color: Colors.white,
-                        size: 36,
-                      ),
+                      const Icon(Icons.menu, color: Colors.white, size: 36),
                       const SizedBox(width: 18),
                       const Icon(
                         Icons.sports_motorsports,
@@ -112,19 +114,24 @@ class HomeScreen extends StatelessWidget {
                       ),
                     ),
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(
-                        18,
-                        20,
-                        18,
-                        130,
-                      ),
+                      physics: const BouncingScrollPhysics(),
+                      padding: responsive.pagePadding,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // HELLO SECTION
-                          Row(
+                          Flex(
+                            direction: responsive.isSmallPhone
+                                ? Axis.vertical
+                                : Axis.horizontal,
+                            crossAxisAlignment: responsive.isSmallPhone
+                                ? CrossAxisAlignment.stretch
+                                : CrossAxisAlignment.center,
                             children: [
-                              const Expanded(
+                              SizedBox(
+                                width: responsive.isSmallPhone
+                                    ? double.infinity
+                                    : screenWidth - 220,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -150,7 +157,10 @@ class HomeScreen extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              const SizedBox(width: 10),
+                              SizedBox(
+                                width: responsive.isSmallPhone ? 0 : 10,
+                                height: responsive.isSmallPhone ? 12 : 0,
+                              ),
                               Container(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
@@ -199,14 +209,12 @@ class HomeScreen extends StatelessWidget {
 
                           // HERO CARD
                           Container(
-                            height: 420,
                             width: double.infinity,
+                            constraints: const BoxConstraints(minHeight: 420),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(28),
                               image: const DecorationImage(
-                                image: AssetImage(
-                                  "assets/images/biker_bg.png",
-                                ),
+                                image: AssetImage("assets/images/biker_bg.png"),
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -223,27 +231,34 @@ class HomeScreen extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              child: Row(
+                              child: Flex(
+                                direction: useVerticalHero
+                                    ? Axis.vertical
+                                    : Axis.horizontal,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  Expanded(
+                                  SizedBox(
+                                    width: useVerticalHero
+                                        ? null
+                                        : screenWidth - 220,
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
                                         const SizedBox(height: 20),
-                                        const Text(
+                                        Text(
                                           "Ride Safe.",
                                           style: TextStyle(
                                             color: Colors.white,
-                                            fontSize: 38,
+                                            fontSize: heroFontSize,
                                             fontWeight: FontWeight.w900,
                                           ),
                                         ),
-                                        const Text(
+                                        Text(
                                           "Train Smart.",
                                           style: TextStyle(
                                             color: green,
-                                            fontSize: 38,
+                                            fontSize: heroFontSize,
                                             fontWeight: FontWeight.w900,
                                           ),
                                         ),
@@ -256,14 +271,15 @@ class HomeScreen extends StatelessWidget {
                                             height: 1.6,
                                           ),
                                         ),
-                                        const Spacer(),
+                                        const SizedBox(height: 28),
                                         Container(
                                           width: 180,
                                           height: 58,
                                           decoration: BoxDecoration(
                                             color: green,
-                                            borderRadius:
-                                                BorderRadius.circular(18),
+                                            borderRadius: BorderRadius.circular(
+                                              18,
+                                            ),
                                           ),
                                           child: const Row(
                                             mainAxisAlignment:
@@ -290,7 +306,10 @@ class HomeScreen extends StatelessWidget {
                                     ),
                                   ),
 
-                                  const SizedBox(width: 12),
+                                  SizedBox(
+                                    width: useVerticalHero ? 0 : 12,
+                                    height: useVerticalHero ? 12 : 0,
+                                  ),
 
                                   // RIGHT STATS
                                   Column(
@@ -417,10 +436,7 @@ class HomeScreen extends StatelessWidget {
                                     ),
                                   ),
                                   SizedBox(width: 5),
-                                  Icon(
-                                    Icons.arrow_forward,
-                                    color: green,
-                                  ),
+                                  Icon(Icons.arrow_forward, color: green),
                                 ],
                               ),
                             ],
@@ -452,8 +468,9 @@ class HomeScreen extends StatelessWidget {
                                               value: 0.85,
                                               strokeWidth: 10,
                                               color: green,
-                                              backgroundColor:
-                                                  Color(0xFFDDF3E3),
+                                              backgroundColor: Color(
+                                                0xFFDDF3E3,
+                                              ),
                                             ),
                                           ),
                                           Text(
@@ -607,10 +624,7 @@ class HomeScreen extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(width: 10),
-                                const Icon(
-                                  Icons.arrow_forward,
-                                  color: green,
-                                ),
+                                const Icon(Icons.arrow_forward, color: green),
                               ],
                             ),
                           ),
@@ -626,9 +640,7 @@ class HomeScreen extends StatelessWidget {
               left: 18,
               right: 18,
               bottom: 18,
-              child: const NeoRiderBottomNav(
-                activeTab: NeoRiderNavTab.home,
-              ),
+              child: const NeoRiderBottomNav(activeTab: NeoRiderNavTab.home),
             ),
           ],
         ),
@@ -636,12 +648,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget quickCard(
-    IconData icon,
-    String title,
-    String subtitle,
-    Color color,
-  ) {
+  Widget quickCard(IconData icon, String title, String subtitle, Color color) {
     return Container(
       height: 180,
       decoration: BoxDecoration(
@@ -657,21 +664,14 @@ class HomeScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            color: color,
-            size: 52,
-          ),
+          Icon(icon, color: color, size: 52),
           const SizedBox(height: 18),
           Text(
             title,
             textAlign: TextAlign.center,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
           Text(
@@ -679,39 +679,24 @@ class HomeScreen extends StatelessWidget {
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.black54,
-              fontSize: 15,
-            ),
+            style: const TextStyle(color: Colors.black54, fontSize: 15),
           ),
         ],
       ),
     );
   }
 
-  Widget statItem(
-    IconData icon,
-    String value,
-    String title,
-    Color color,
-  ) {
+  Widget statItem(IconData icon, String value, String title, Color color) {
     return Column(
       children: [
-        Icon(
-          icon,
-          color: color,
-          size: 34,
-        ),
+        Icon(icon, color: color, size: 34),
         const SizedBox(height: 10),
         Text(
           value,
           textAlign: TextAlign.center,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 4),
         Text(
@@ -719,21 +704,13 @@ class HomeScreen extends StatelessWidget {
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
-          style: const TextStyle(
-            color: Colors.black54,
-            fontSize: 14,
-          ),
+          style: const TextStyle(color: Colors.black54, fontSize: 14),
         ),
       ],
     );
   }
 
-  Widget statBox(
-    IconData icon,
-    String title,
-    String value,
-    Color color,
-  ) {
+  Widget statBox(IconData icon, String title, String value, Color color) {
     return Container(
       width: 145,
       height: 95,
@@ -741,17 +718,11 @@ class HomeScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.45),
         borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: Colors.white24,
-        ),
+        border: Border.all(color: Colors.white24),
       ),
       child: Row(
         children: [
-          Icon(
-            icon,
-            color: color,
-            size: 28,
-          ),
+          Icon(icon, color: color, size: 28),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
@@ -787,19 +758,11 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget navItem(
-    IconData icon,
-    String title,
-    bool active,
-  ) {
+  Widget navItem(IconData icon, String title, bool active) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          icon,
-          color: active ? green : Colors.white70,
-          size: 32,
-        ),
+        Icon(icon, color: active ? green : Colors.white70, size: 32),
         const SizedBox(height: 6),
         Text(
           title,

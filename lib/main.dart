@@ -7,6 +7,8 @@ import 'screens/live_ride_screen.dart';
 import 'screens/rides_screen.dart';
 import 'screens/alert_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/ble_test_screen.dart';
+import 'screens/device/device_screen.dart';
 
 void main() {
   runApp(const NeoRiderApp());
@@ -22,9 +24,7 @@ class NeoRiderApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         scaffoldBackgroundColor: const Color(0xFFEFF7E5),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF9BE15D),
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF9BE15D)),
         useMaterial3: true,
       ),
       initialRoute: '/',
@@ -36,6 +36,8 @@ class NeoRiderApp extends StatelessWidget {
         '/rides': (context) => const RidesScreen(),
         '/alerts': (context) => const AlertScreen(),
         '/profile': (context) => const ProfileScreen(),
+        '/ble-test': (context) => const BleTestScreen(),
+        '/device': (context) => const DeviceScreen(),
       },
     );
   }

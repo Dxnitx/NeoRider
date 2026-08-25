@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/neorider_bottom_nav.dart';
+import '../utils/responsive.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -10,52 +11,44 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = NeoResponsive.of(context);
     return Scaffold(
       backgroundColor: dark,
       body: SafeArea(
-        child: Stack(
+        bottom: false,
+        child: Column(
           children: [
-            Column(
-              children: [
-                _topHeader(),
-                Expanded(
-                  child: Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFF6F8F7),
-                      borderRadius: BorderRadius.vertical(
-                        top: Radius.circular(32),
-                      ),
-                    ),
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(20, 28, 20, 125),
-                      child: Column(
-                        children: [
-                          _profileHeader(),
-                          const SizedBox(height: 24),
-                          _statsCard(),
-                          const SizedBox(height: 24),
-                          _menuCard(),
-                          const SizedBox(height: 24),
-                          _signOutButton(),
-                        ],
-                      ),
-                    ),
+            _topHeader(),
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF6F8F7),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+                ),
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: responsive.pagePadding,
+                  child: Column(
+                    children: [
+                      _profileHeader(),
+                      const SizedBox(height: 24),
+                      _statsCard(),
+                      const SizedBox(height: 24),
+                      _menuCard(context),
+                      const SizedBox(height: 24),
+                      _signOutButton(),
+                    ],
                   ),
                 ),
-              ],
-            ),
-
-            Positioned(
-              left: 18,
-              right: 18,
-              bottom: 18,
-              child: const NeoRiderBottomNav(
-                activeTab: NeoRiderNavTab.profile,
               ),
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: const Padding(
+        padding: EdgeInsets.fromLTRB(18, 0, 18, 10),
+        child: NeoRiderBottomNav(activeTab: NeoRiderNavTab.profile),
       ),
     );
   }
@@ -90,10 +83,7 @@ class ProfileScreen extends StatelessWidget {
                   "Ride Smart, Ride Safe",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 15,
-                  ),
+                  style: TextStyle(color: Colors.white, fontSize: 15),
                 ),
               ],
             ),
@@ -102,7 +92,11 @@ class ProfileScreen extends StatelessWidget {
           Stack(
             clipBehavior: Clip.none,
             children: [
-              const Icon(Icons.notifications_none, color: Colors.white, size: 36),
+              const Icon(
+                Icons.notifications_none,
+                color: Colors.white,
+                size: 36,
+              ),
               Positioned(
                 right: -3,
                 top: -8,
@@ -151,11 +145,7 @@ class ProfileScreen extends StatelessWidget {
                   color: green,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.edit,
-                  color: Colors.white,
-                  size: 21,
-                ),
+                child: const Icon(Icons.edit, color: Colors.white, size: 21),
               ),
             ),
           ],
@@ -180,17 +170,16 @@ class ProfileScreen extends StatelessWidget {
                 "rider@example.com",
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 19,
-                  color: Colors.black54,
-                ),
+                style: TextStyle(fontSize: 19, color: Colors.black54),
               ),
               const SizedBox(height: 14),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0xFFE1F7E8),
                     borderRadius: BorderRadius.circular(20),
@@ -232,15 +221,30 @@ class ProfileScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           Expanded(
-            child: _statItem(Icons.shield_outlined, "85%", "Safety Score", green),
+            child: _statItem(
+              Icons.shield_outlined,
+              "85%",
+              "Safety Score",
+              green,
+            ),
           ),
           _divider(),
           Expanded(
-            child: _statItem(Icons.route, "120 km", "Total Distance", Colors.blue),
+            child: _statItem(
+              Icons.route,
+              "120 km",
+              "Total Distance",
+              Colors.blue,
+            ),
           ),
           _divider(),
           Expanded(
-            child: _statItem(Icons.access_time, "8h 45m", "Total Time", Colors.orange),
+            child: _statItem(
+              Icons.access_time,
+              "8h 45m",
+              "Total Time",
+              Colors.orange,
+            ),
           ),
           _divider(),
           Expanded(
@@ -278,24 +282,17 @@ class ProfileScreen extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 13,
-            color: Colors.black54,
-          ),
+          style: const TextStyle(fontSize: 13, color: Colors.black54),
         ),
       ],
     );
   }
 
   Widget _divider() {
-    return Container(
-      width: 1,
-      height: 75,
-      color: Colors.black12,
-    );
+    return Container(width: 1, height: 75, color: Colors.black12);
   }
 
-  Widget _menuCard() {
+  Widget _menuCard(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 10),
       decoration: _cardDecoration(),
@@ -314,6 +311,7 @@ class ProfileScreen extends StatelessWidget {
             "Manage your connected helmet",
             Colors.blue,
             const Color(0xFFE4F1FF),
+            onTap: () => Navigator.pushNamed(context, '/device'),
           ),
           _menuItem(
             Icons.track_changes,
@@ -370,56 +368,60 @@ class ProfileScreen extends StatelessWidget {
     Color color,
     Color bgColor, {
     bool showDivider = true,
+    VoidCallback? onTap,
   }) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-          child: Row(
-            children: [
-              Container(
-                width: 54,
-                height: 54,
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  borderRadius: BorderRadius.circular(18),
+        InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            child: Row(
+              children: [
+                Container(
+                  width: 54,
+                  height: 54,
+                  decoration: BoxDecoration(
+                    color: bgColor,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Icon(icon, color: color, size: 30),
                 ),
-                child: Icon(icon, color: color, size: 30),
-              ),
-              const SizedBox(width: 18),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF0D1522),
+                const SizedBox(width: 18),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                          color: Color(0xFF0D1522),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        color: Colors.black54,
+                      const SizedBox(height: 5),
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: Colors.black54,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.black54,
-                size: 20,
-              ),
-            ],
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.black54,
+                  size: 20,
+                ),
+              ],
+            ),
           ),
         ),
         if (showDivider)

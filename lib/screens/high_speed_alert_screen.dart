@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/neorider_bottom_nav.dart';
+import '../utils/responsive.dart';
 
 class HighSpeedAlertScreen extends StatelessWidget {
   const HighSpeedAlertScreen({super.key});
@@ -11,6 +12,7 @@ class HighSpeedAlertScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = NeoResponsive.of(context);
     return Scaffold(
       backgroundColor: bg,
       body: SafeArea(
@@ -19,7 +21,8 @@ class HighSpeedAlertScreen extends StatelessWidget {
             _topBar(context),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(18),
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.all(responsive.horizontalPadding),
                 child: Column(
                   children: [
                     _alertCard(),
@@ -31,7 +34,7 @@ class HighSpeedAlertScreen extends StatelessWidget {
                     _tipCard(),
                     const SizedBox(height: 18),
                     _actionsCard(),
-                    const SizedBox(height: 120),
+                    SizedBox(height: responsive.sectionSpacing),
                   ],
                 ),
               ),
@@ -41,9 +44,7 @@ class HighSpeedAlertScreen extends StatelessWidget {
       ),
       bottomNavigationBar: const Padding(
         padding: EdgeInsets.all(16),
-        child: NeoRiderBottomNav(
-          activeTab: NeoRiderNavTab.alerts,
-        ),
+        child: NeoRiderBottomNav(activeTab: NeoRiderNavTab.alerts),
       ),
     );
   }
@@ -57,11 +58,7 @@ class HighSpeedAlertScreen extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: () => Navigator.pop(context),
-            child: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-              size: 34,
-            ),
+            child: const Icon(Icons.arrow_back, color: Colors.white, size: 34),
           ),
           const SizedBox(width: 22),
           const Text(
@@ -82,8 +79,8 @@ class HighSpeedAlertScreen extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 120,
-            height: 120,
+            width: 72,
+            height: 72,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: orange.withValues(alpha: 0.12),
@@ -91,20 +88,17 @@ class HighSpeedAlertScreen extends StatelessWidget {
             child: const Icon(
               Icons.warning_amber_rounded,
               color: orange,
-              size: 64,
+              size: 42,
             ),
           ),
-          const SizedBox(width: 24),
+          const SizedBox(width: 14),
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'High Speed Alert',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 10),
                 Row(
@@ -118,10 +112,7 @@ class HighSpeedAlertScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: 8),
-                    CircleAvatar(
-                      radius: 5,
-                      backgroundColor: orange,
-                    ),
+                    CircleAvatar(radius: 5, backgroundColor: orange),
                   ],
                 ),
                 SizedBox(height: 16),
@@ -136,10 +127,7 @@ class HighSpeedAlertScreen extends StatelessWidget {
                 SizedBox(height: 18),
                 Text(
                   'May 8, 2026 - 8:20 AM',
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 16,
-                  ),
+                  style: TextStyle(color: Colors.grey, fontSize: 16),
                 ),
               ],
             ),
@@ -158,17 +146,15 @@ class HighSpeedAlertScreen extends StatelessWidget {
           const SizedBox(height: 24),
           const Text(
             'A high speed event was detected during your ride.\nDriving above safe speed limits can be dangerous.',
-            style: TextStyle(
-              fontSize: 18,
-              height: 1.5,
-              color: Colors.black87,
-            ),
+            style: TextStyle(fontSize: 18, height: 1.5, color: Colors.black87),
           ),
           const SizedBox(height: 24),
           const Divider(),
           const SizedBox(height: 24),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+          const Wrap(
+            alignment: WrapAlignment.spaceAround,
+            runSpacing: 18,
+            spacing: 18,
             children: [
               _OverviewItem(
                 icon: Icons.access_time,
@@ -267,20 +253,13 @@ class HighSpeedAlertScreen extends StatelessWidget {
                 CircleAvatar(
                   radius: 32,
                   backgroundColor: orange.withValues(alpha: 0.15),
-                  child: const Icon(
-                    Icons.lightbulb,
-                    color: orange,
-                    size: 34,
-                  ),
+                  child: const Icon(Icons.lightbulb, color: orange, size: 34),
                 ),
                 const SizedBox(width: 18),
                 const Expanded(
                   child: Text(
                     'Always follow speed limits for your safety and the safety of others. Adjust your speed to road conditions.',
-                    style: TextStyle(
-                      fontSize: 18,
-                      height: 1.5,
-                    ),
+                    style: TextStyle(fontSize: 18, height: 1.5),
                   ),
                 ),
               ],
@@ -298,10 +277,7 @@ class HighSpeedAlertScreen extends StatelessWidget {
         children: [
           _sectionTitle(Icons.list_alt, 'What You Can Do'),
           const SizedBox(height: 18),
-          const _ActionRow(
-            icon: Icons.speed,
-            text: 'Follow speed limits',
-          ),
+          const _ActionRow(icon: Icons.speed, text: 'Follow speed limits'),
           const Divider(height: 28),
           const _ActionRow(
             icon: Icons.add_road,
@@ -343,10 +319,7 @@ class HighSpeedAlertScreen extends StatelessWidget {
         const SizedBox(width: 12),
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
       ],
     );
@@ -368,37 +341,21 @@ class _OverviewItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(
-          icon,
-          color: HighSpeedAlertScreen.orange,
-          size: 34,
-        ),
+        Icon(icon, color: HighSpeedAlertScreen.orange, size: 34),
         const SizedBox(height: 14),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.grey,
-            fontSize: 15,
-          ),
-        ),
+        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 15)),
       ],
     );
   }
 }
 
 class _ActionRow extends StatelessWidget {
-  const _ActionRow({
-    required this.icon,
-    required this.text,
-  });
+  const _ActionRow({required this.icon, required this.text});
 
   final IconData icon;
   final String text;
@@ -407,25 +364,10 @@ class _ActionRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(
-          icon,
-          color: HighSpeedAlertScreen.orange,
-          size: 30,
-        ),
+        Icon(icon, color: HighSpeedAlertScreen.orange, size: 30),
         const SizedBox(width: 18),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(
-              fontSize: 19,
-            ),
-          ),
-        ),
-        const Icon(
-          Icons.chevron_right,
-          color: Colors.grey,
-          size: 34,
-        ),
+        Expanded(child: Text(text, style: const TextStyle(fontSize: 19))),
+        const Icon(Icons.chevron_right, color: Colors.grey, size: 34),
       ],
     );
   }

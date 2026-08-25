@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/neorider_bottom_nav.dart';
+import '../utils/responsive.dart';
 
 class SafeRidingScreen extends StatelessWidget {
   const SafeRidingScreen({super.key});
@@ -11,6 +12,7 @@ class SafeRidingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = NeoResponsive.of(context);
     return Scaffold(
       backgroundColor: lightBg,
       body: SafeArea(
@@ -19,10 +21,11 @@ class SafeRidingScreen extends StatelessWidget {
             _topBar(context),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(18),
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.all(responsive.horizontalPadding),
                 child: Column(
                   children: [
-                    _scoreCard(),
+                    _scoreCard(context),
                     const SizedBox(height: 18),
                     _rideSummary(),
                     const SizedBox(height: 18),
@@ -42,9 +45,7 @@ class SafeRidingScreen extends StatelessWidget {
       ),
       bottomNavigationBar: const Padding(
         padding: EdgeInsets.all(16),
-        child: NeoRiderBottomNav(
-          activeTab: NeoRiderNavTab.rides,
-        ),
+        child: NeoRiderBottomNav(activeTab: NeoRiderNavTab.rides),
       ),
     );
   }
@@ -74,14 +75,17 @@ class SafeRidingScreen extends StatelessWidget {
     );
   }
 
-  Widget _scoreCard() {
+  Widget _scoreCard(BuildContext context) {
+    final responsive = NeoResponsive.of(context);
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: dark,
         borderRadius: BorderRadius.circular(22),
       ),
-      child: Row(
+      child: Flex(
+        direction: responsive.width < 600 ? Axis.vertical : Axis.horizontal,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
             width: 135,
@@ -119,8 +123,14 @@ class SafeRidingScreen extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 26),
-          const Expanded(
+          SizedBox(
+            width: responsive.width < 600 ? 0 : 26,
+            height: responsive.width < 600 ? 18 : 0,
+          ),
+          SizedBox(
+            width: responsive.width < 600
+                ? double.infinity
+                : responsive.width - 360,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -144,7 +154,11 @@ class SafeRidingScreen extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.verified_user, color: green, size: 78),
+          SizedBox(
+            width: responsive.width < 600 ? 0 : 14,
+            height: responsive.width < 600 ? 14 : 0,
+          ),
+          const Icon(Icons.verified_user, color: green, size: 58),
         ],
       ),
     );
@@ -157,8 +171,10 @@ class SafeRidingScreen extends StatelessWidget {
         children: [
           _sectionTitle(Icons.assignment_turned_in_outlined, 'Ride Summary'),
           const SizedBox(height: 24),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+          const Wrap(
+            alignment: WrapAlignment.spaceAround,
+            runSpacing: 18,
+            spacing: 18,
             children: [
               _SummaryItem(
                 icon: Icons.access_time,
@@ -175,11 +191,7 @@ class SafeRidingScreen extends StatelessWidget {
                 value: '18 km',
                 label: 'Distance',
               ),
-              _SummaryItem(
-                icon: Icons.flag,
-                value: '0',
-                label: 'Incidents',
-              ),
+              _SummaryItem(icon: Icons.flag, value: '0', label: 'Incidents'),
             ],
           ),
         ],
@@ -370,10 +382,7 @@ class SafeRidingScreen extends StatelessWidget {
         const SizedBox(width: 10),
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 23,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 23, fontWeight: FontWeight.bold),
         ),
       ],
     );
@@ -402,10 +411,7 @@ class _SummaryItem extends StatelessWidget {
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 6),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 14, color: Colors.grey),
-        ),
+        Text(label, style: const TextStyle(fontSize: 14, color: Colors.grey)),
       ],
     );
   }

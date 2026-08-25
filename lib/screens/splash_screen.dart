@@ -23,10 +23,12 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8F5),
       body: Center(
-        child: Image.asset(
-          'assets/images/neorider_logo.png',
-          width: 500,
-          fit: BoxFit.contain,
+        child: FractionallySizedBox(
+          widthFactor: 0.82,
+          child: Image.asset(
+            'assets/images/neorider_logo.png',
+            fit: BoxFit.contain,
+          ),
         ),
       ),
     );

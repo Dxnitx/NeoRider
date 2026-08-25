@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/neorider_bottom_nav.dart';
+import '../utils/responsive.dart';
 
 class HardBrakingAlertScreen extends StatelessWidget {
   const HardBrakingAlertScreen({super.key});
@@ -11,6 +12,7 @@ class HardBrakingAlertScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = NeoResponsive.of(context);
     return Scaffold(
       backgroundColor: bg,
       body: SafeArea(
@@ -19,7 +21,8 @@ class HardBrakingAlertScreen extends StatelessWidget {
             _topBar(context),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(18),
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.all(responsive.horizontalPadding),
                 child: Column(
                   children: [
                     _alertCard(),
@@ -31,7 +34,7 @@ class HardBrakingAlertScreen extends StatelessWidget {
                     _safetyTipCard(),
                     const SizedBox(height: 18),
                     _actionsCard(),
-                    const SizedBox(height: 120),
+                    SizedBox(height: responsive.sectionSpacing),
                   ],
                 ),
               ),
@@ -41,9 +44,7 @@ class HardBrakingAlertScreen extends StatelessWidget {
       ),
       bottomNavigationBar: const Padding(
         padding: EdgeInsets.all(16),
-        child: NeoRiderBottomNav(
-          activeTab: NeoRiderNavTab.alerts,
-        ),
+        child: NeoRiderBottomNav(activeTab: NeoRiderNavTab.alerts),
       ),
     );
   }
@@ -57,11 +58,7 @@ class HardBrakingAlertScreen extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: () => Navigator.pop(context),
-            child: const Icon(
-              Icons.arrow_back,
-              color: Colors.white,
-              size: 34,
-            ),
+            child: const Icon(Icons.arrow_back, color: Colors.white, size: 34),
           ),
           const SizedBox(width: 22),
           const Text(
@@ -82,19 +79,15 @@ class HardBrakingAlertScreen extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 118,
-            height: 118,
+            width: 72,
+            height: 72,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: red.withValues(alpha: 0.10),
             ),
-            child: const Icon(
-              Icons.shield,
-              color: red,
-              size: 60,
-            ),
+            child: const Icon(Icons.shield, color: red, size: 42),
           ),
-          const SizedBox(width: 24),
+          const SizedBox(width: 14),
           const Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -102,7 +95,7 @@ class HardBrakingAlertScreen extends StatelessWidget {
                 Text(
                   'Hard Braking Detected',
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
                   ),
@@ -119,10 +112,7 @@ class HardBrakingAlertScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(width: 8),
-                    CircleAvatar(
-                      radius: 5,
-                      backgroundColor: red,
-                    ),
+                    CircleAvatar(radius: 5, backgroundColor: red),
                   ],
                 ),
                 SizedBox(height: 16),
@@ -137,10 +127,7 @@ class HardBrakingAlertScreen extends StatelessWidget {
                 SizedBox(height: 18),
                 Text(
                   'May 8, 2026 - 8:45 AM',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
                 ),
               ],
             ),
@@ -159,17 +146,15 @@ class HardBrakingAlertScreen extends StatelessWidget {
           const SizedBox(height: 24),
           const Text(
             'A hard braking event was detected during your ride.\nFrequent hard braking can increase the risk of accidents.',
-            style: TextStyle(
-              fontSize: 18,
-              color: Colors.black87,
-              height: 1.5,
-            ),
+            style: TextStyle(fontSize: 18, color: Colors.black87, height: 1.5),
           ),
           const SizedBox(height: 26),
           const Divider(),
           const SizedBox(height: 24),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+          const Wrap(
+            alignment: WrapAlignment.spaceAround,
+            runSpacing: 18,
+            spacing: 18,
             children: [
               _OverviewItem(
                 icon: Icons.access_time,
@@ -265,20 +250,13 @@ class HardBrakingAlertScreen extends StatelessWidget {
                 CircleAvatar(
                   radius: 32,
                   backgroundColor: red.withValues(alpha: 0.12),
-                  child: const Icon(
-                    Icons.lightbulb,
-                    color: red,
-                    size: 34,
-                  ),
+                  child: const Icon(Icons.lightbulb, color: red, size: 34),
                 ),
                 const SizedBox(width: 18),
                 const Expanded(
                   child: Text(
                     'Try to anticipate stops and slow down gradually.\nKeep a safe distance from other vehicles.',
-                    style: TextStyle(
-                      fontSize: 18,
-                      height: 1.5,
-                    ),
+                    style: TextStyle(fontSize: 18, height: 1.5),
                   ),
                 ),
               ],
@@ -296,20 +274,14 @@ class HardBrakingAlertScreen extends StatelessWidget {
         children: [
           _sectionTitle(Icons.list_alt, 'What You Can Do'),
           const SizedBox(height: 18),
-          const _ActionRow(
-            icon: Icons.speed,
-            text: 'Maintain safe speed',
-          ),
+          const _ActionRow(icon: Icons.speed, text: 'Maintain safe speed'),
           const Divider(height: 26),
           const _ActionRow(
             icon: Icons.do_not_disturb_on,
             text: 'Avoid sudden braking',
           ),
           const Divider(height: 26),
-          const _ActionRow(
-            icon: Icons.shield,
-            text: 'Stay alert and focused',
-          ),
+          const _ActionRow(icon: Icons.shield, text: 'Stay alert and focused'),
         ],
       ),
     );
@@ -341,10 +313,7 @@ class HardBrakingAlertScreen extends StatelessWidget {
         const SizedBox(width: 12),
         Text(
           title,
-          style: const TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
       ],
     );
@@ -366,37 +335,21 @@ class _OverviewItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(
-          icon,
-          color: HardBrakingAlertScreen.red,
-          size: 34,
-        ),
+        Icon(icon, color: HardBrakingAlertScreen.red, size: 34),
         const SizedBox(height: 14),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 8),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.grey,
-            fontSize: 15,
-          ),
-        ),
+        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 15)),
       ],
     );
   }
 }
 
 class _ActionRow extends StatelessWidget {
-  const _ActionRow({
-    required this.icon,
-    required this.text,
-  });
+  const _ActionRow({required this.icon, required this.text});
 
   final IconData icon;
   final String text;
@@ -405,25 +358,10 @@ class _ActionRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(
-          icon,
-          color: HardBrakingAlertScreen.red,
-          size: 30,
-        ),
+        Icon(icon, color: HardBrakingAlertScreen.red, size: 30),
         const SizedBox(width: 18),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(
-              fontSize: 19,
-            ),
-          ),
-        ),
-        const Icon(
-          Icons.chevron_right,
-          size: 34,
-          color: Colors.grey,
-        ),
+        Expanded(child: Text(text, style: const TextStyle(fontSize: 19))),
+        const Icon(Icons.chevron_right, size: 34, color: Colors.grey),
       ],
     );
   }

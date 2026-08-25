@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/neorider_bottom_nav.dart';
+import '../utils/responsive.dart';
 
 class EmergencyScreen extends StatelessWidget {
   const EmergencyScreen({super.key});
@@ -12,6 +13,7 @@ class EmergencyScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = NeoResponsive.of(context);
     return Scaffold(
       backgroundColor: lightBg,
       body: SafeArea(
@@ -20,18 +22,24 @@ class EmergencyScreen extends StatelessWidget {
             _topBar(context),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(18),
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(
+                  responsive.horizontalPadding,
+                  responsive.sectionSpacing,
+                  responsive.horizontalPadding,
+                  responsive.sectionSpacing,
+                ),
                 child: Column(
                   children: [
-                    _sosBanner(),
+                    _sosBanner(context),
                     const SizedBox(height: 18),
-                    _contactsCard(),
+                    _contactsCard(context),
                     const SizedBox(height: 18),
-                    _sosInfoCard(),
+                    _sosInfoCard(context),
                     const SizedBox(height: 18),
-                    _shareLocationCard(),
+                    _shareLocationCard(context),
                     const SizedBox(height: 18),
-                    _safetyTipsCard(),
+                    _safetyTipsCard(context),
                     const SizedBox(height: 18),
                   ],
                 ),
@@ -41,29 +49,33 @@ class EmergencyScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: const Padding(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.fromLTRB(16, 0, 16, 10),
         child: NeoRiderBottomNav(activeTab: null),
       ),
     );
   }
 
   Widget _topBar(BuildContext context) {
+    final responsive = NeoResponsive.of(context);
     return Container(
-      height: 82,
+      constraints: const BoxConstraints(minHeight: 68),
       color: dark,
-      padding: const EdgeInsets.symmetric(horizontal: 22),
+      padding: EdgeInsets.symmetric(
+        horizontal: responsive.horizontalPadding,
+        vertical: 12,
+      ),
       child: Row(
         children: [
           GestureDetector(
             onTap: () => Navigator.pop(context),
             child: const Icon(Icons.arrow_back, color: Colors.white, size: 34),
           ),
-          const SizedBox(width: 28),
-          const Text(
+          SizedBox(width: responsive.isSmallPhone ? 14 : 22),
+          Text(
             'Emergency',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 32,
+              fontSize: responsive.pageTitleSize.clamp(26, 32),
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -98,99 +110,89 @@ class EmergencyScreen extends StatelessWidget {
     );
   }
 
-  Widget _sosBanner() {
+  Widget _sosBanner(BuildContext context) {
+    final responsive = NeoResponsive.of(context);
+    final intro = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: const [
+        Text(
+          'Need Help?',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 27,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 8),
+        Text(
+          'Tap the SOS button to alert your emergency contacts and share your live location.',
+          style: TextStyle(color: Colors.white, fontSize: 16, height: 1.4),
+        ),
+      ],
+    );
+    final sosButton = Semantics(
+      button: true,
+      label: 'Send emergency SOS alert',
+      child: GestureDetector(
+        onTap: () {},
+        child: Container(
+          width: responsive.isSmallPhone ? 112 : 126,
+          height: responsive.isSmallPhone ? 112 : 126,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: const Color(0xFFFF1E14),
+            boxShadow: [
+              BoxShadow(
+                color: red.withValues(alpha: 0.45),
+                blurRadius: 20,
+                spreadRadius: 4,
+              ),
+            ],
+          ),
+          child: const Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'SOS',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(height: 4),
+              Text(
+                'Tap to Alert',
+                style: TextStyle(color: Colors.white, fontSize: 15),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
     return Container(
-      padding: const EdgeInsets.all(26),
+      width: double.infinity,
+      padding: EdgeInsets.all(responsive.cardPadding),
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [Color(0xFF7A0000), Color(0xFF4D0000)],
         ),
         borderRadius: BorderRadius.circular(22),
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 116,
-            height: 116,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: red.withValues(alpha: 0.18),
-              border: Border.all(color: red.withValues(alpha: 0.35), width: 14),
-            ),
-            child: const Icon(
-              Icons.warning_rounded,
-              color: Colors.white,
-              size: 62,
-            ),
-          ),
-          const SizedBox(width: 26),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: responsive.width < 430
+          ? Column(children: [intro, const SizedBox(height: 20), sosButton])
+          : Row(
               children: [
-                Text(
-                  'Need Help?',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 27,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 12),
-                Text(
-                  'Tap the SOS button to alert your emergency contacts and share your live location.',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 17,
-                    height: 1.45,
-                  ),
-                ),
+                Expanded(child: intro),
+                const SizedBox(width: 20),
+                sosButton,
               ],
             ),
-          ),
-          const SizedBox(width: 20),
-          GestureDetector(
-            onTap: () {},
-            child: Container(
-              width: 126,
-              height: 126,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFFFF1E14),
-                boxShadow: [
-                  BoxShadow(
-                    color: red.withValues(alpha: 0.45),
-                    blurRadius: 20,
-                    spreadRadius: 6,
-                  ),
-                ],
-              ),
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'SOS',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 38,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 5),
-                  Text(
-                    'Tap to Alert',
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
-  Widget _contactsCard() {
+  Widget _contactsCard(BuildContext context) {
     return _whiteCard(
       child: Column(
         children: [
@@ -198,11 +200,12 @@ class EmergencyScreen extends StatelessWidget {
             children: [
               Icon(Icons.groups_rounded, color: red, size: 30),
               SizedBox(width: 12),
-              Text(
-                'Emergency Contacts',
-                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+              Expanded(
+                child: Text(
+                  'Emergency Contacts',
+                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                ),
               ),
-              Spacer(),
               Text(
                 'Manage',
                 style: TextStyle(
@@ -226,17 +229,14 @@ class EmergencyScreen extends StatelessWidget {
             phone: '+91 91234 56789',
           ),
           const Divider(height: 26),
-          const _ContactRow(
-            initials: 'AK',
-            name: 'Ambulance',
-            phone: '110',
-          ),
+          const _ContactRow(initials: 'AK', name: 'Ambulance', phone: '110'),
         ],
       ),
     );
   }
 
-  Widget _sosInfoCard() {
+  Widget _sosInfoCard(BuildContext context) {
+    final responsive = NeoResponsive.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(22),
@@ -245,60 +245,95 @@ class EmergencyScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: red.withValues(alpha: 0.18)),
       ),
-      child: const Column(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Icon(Icons.info, color: red, size: 28),
               SizedBox(width: 12),
-              Text(
-                'What Happens When You Tap SOS?',
-                style: TextStyle(
-                  color: red,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  'What Happens When You Tap SOS?',
+                  style: TextStyle(
+                    color: red,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
           ),
           SizedBox(height: 28),
-          Row(
-            children: [
-              Expanded(
-                child: _SosStep(
-                  icon: Icons.location_on,
-                  text: 'Your live location\nis shared',
+          responsive.isSmallPhone
+              ? Column(
+                  children: const [
+                    _SosStep(
+                      icon: Icons.location_on,
+                      text: 'Your live location is shared',
+                    ),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      color: Colors.grey,
+                      size: 32,
+                    ),
+                    _SosStep(
+                      icon: Icons.notifications_active,
+                      text: 'Alert sent to all contacts',
+                    ),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      color: Colors.grey,
+                      size: 32,
+                    ),
+                    _SosStep(
+                      icon: Icons.phone_in_talk,
+                      text: 'Contacts can call you',
+                    ),
+                  ],
+                )
+              : Row(
+                  children: [
+                    Expanded(
+                      child: _SosStep(
+                        icon: Icons.location_on,
+                        text: 'Your live location\nis shared',
+                      ),
+                    ),
+                    Icon(Icons.chevron_right, color: Colors.grey, size: 38),
+                    Expanded(
+                      child: _SosStep(
+                        icon: Icons.notifications_active,
+                        text: 'Alert sent to all\ncontacts',
+                      ),
+                    ),
+                    Icon(Icons.chevron_right, color: Colors.grey, size: 38),
+                    Expanded(
+                      child: _SosStep(
+                        icon: Icons.phone_in_talk,
+                        text: 'Contacts can\ncall you',
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              Icon(Icons.chevron_right, color: Colors.grey, size: 38),
-              Expanded(
-                child: _SosStep(
-                  icon: Icons.notifications_active,
-                  text: 'Alert sent to all\ncontacts',
-                ),
-              ),
-              Icon(Icons.chevron_right, color: Colors.grey, size: 38),
-              Expanded(
-                child: _SosStep(
-                  icon: Icons.phone_in_talk,
-                  text: 'Contacts can\ncall you',
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
   }
 
-  Widget _shareLocationCard() {
+  Widget _shareLocationCard(BuildContext context) {
+    final responsive = NeoResponsive.of(context);
     return _whiteCard(
-      child: Row(
+      child: Flex(
+        direction: responsive.isSmallPhone ? Axis.vertical : Axis.horizontal,
+        crossAxisAlignment: responsive.isSmallPhone
+            ? CrossAxisAlignment.stretch
+            : CrossAxisAlignment.center,
         children: [
-          const Icon(Icons.location_on, color: red, size: 36),
-          const SizedBox(width: 16),
-          const Expanded(
+          if (!responsive.isSmallPhone)
+            const Icon(Icons.location_on, color: red, size: 36),
+          if (!responsive.isSmallPhone) const SizedBox(width: 16),
+          Flexible(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -314,6 +349,7 @@ class EmergencyScreen extends StatelessWidget {
               ],
             ),
           ),
+          if (responsive.isSmallPhone) const SizedBox(height: 16),
           OutlinedButton(
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: red, width: 1.5),
@@ -337,7 +373,7 @@ class EmergencyScreen extends StatelessWidget {
     );
   }
 
-  Widget _safetyTipsCard() {
+  Widget _safetyTipsCard(BuildContext context) {
     return _whiteCard(
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -410,43 +446,41 @@ class _ContactRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    final responsive = NeoResponsive.of(context);
+    final avatar = CircleAvatar(
+      radius: responsive.isSmallPhone ? 27 : 35,
+      backgroundColor: EmergencyScreen.red.withValues(alpha: 0.10),
+      child: Text(
+        initials,
+        style: const TextStyle(
+          color: EmergencyScreen.red,
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+    final details = Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            name,
+            style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 6),
+          Text(phone, style: const TextStyle(fontSize: 16, color: Colors.grey)),
+        ],
+      ),
+    );
+    final actions = Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        CircleAvatar(
-          radius: 35,
-          backgroundColor: EmergencyScreen.red.withValues(alpha: 0.10),
-          child: Text(
-            initials,
-            style: const TextStyle(
-              color: EmergencyScreen.red,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        const SizedBox(width: 22),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                name,
-                style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                phone,
-                style: const TextStyle(fontSize: 16, color: Colors.grey),
-              ),
-            ],
-          ),
-        ),
         _CircleIconButton(
           icon: Icons.phone,
           color: EmergencyScreen.green,
           borderColor: EmergencyScreen.green.withValues(alpha: 0.35),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 10),
         _CircleIconButton(
           icon: Icons.chat_bubble,
           color: EmergencyScreen.red,
@@ -454,6 +488,16 @@ class _ContactRow extends StatelessWidget {
         ),
       ],
     );
+    if (responsive.isSmallPhone) {
+      return Column(
+        children: [
+          Row(children: [avatar, const SizedBox(width: 14), details]),
+          const SizedBox(height: 10),
+          Align(alignment: Alignment.centerRight, child: actions),
+        ],
+      );
+    }
+    return Row(children: [avatar, const SizedBox(width: 22), details, actions]);
   }
 }
 
@@ -471,8 +515,8 @@ class _CircleIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 54,
-      height: 54,
+      width: 52,
+      height: 52,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(color: borderColor, width: 1.5),
@@ -483,10 +527,7 @@ class _CircleIconButton extends StatelessWidget {
 }
 
 class _SosStep extends StatelessWidget {
-  const _SosStep({
-    required this.icon,
-    required this.text,
-  });
+  const _SosStep({required this.icon, required this.text});
 
   final IconData icon;
   final String text;
@@ -512,10 +553,7 @@ class _SosStep extends StatelessWidget {
 }
 
 class _TipRow extends StatelessWidget {
-  const _TipRow({
-    required this.icon,
-    required this.text,
-  });
+  const _TipRow({required this.icon, required this.text});
 
   final IconData icon;
   final String text;
@@ -526,9 +564,7 @@ class _TipRow extends StatelessWidget {
       children: [
         Icon(icon, color: EmergencyScreen.red, size: 30),
         const SizedBox(width: 20),
-        Expanded(
-          child: Text(text, style: const TextStyle(fontSize: 17)),
-        ),
+        Expanded(child: Text(text, style: const TextStyle(fontSize: 17))),
         const Icon(Icons.chevron_right, color: Colors.grey, size: 30),
       ],
     );

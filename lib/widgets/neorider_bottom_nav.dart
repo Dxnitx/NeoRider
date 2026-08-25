@@ -1,18 +1,9 @@
 import 'package:flutter/material.dart';
 
-enum NeoRiderNavTab {
-  home,
-  rides,
-  liveRide,
-  alerts,
-  profile,
-}
+enum NeoRiderNavTab { home, rides, liveRide, alerts, profile }
 
 class NeoRiderBottomNav extends StatelessWidget {
-  const NeoRiderBottomNav({
-    super.key,
-    required this.activeTab,
-  });
+  const NeoRiderBottomNav({super.key, required this.activeTab});
 
   final NeoRiderNavTab? activeTab;
 
@@ -21,96 +12,117 @@ class NeoRiderBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 90,
-      decoration: BoxDecoration(
-        color: dark,
-        borderRadius: BorderRadius.circular(30),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.25),
-            blurRadius: 14,
-          ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _NavButton(
-            icon: Icons.home_outlined,
-            label: 'Home',
-            isActive: activeTab == NeoRiderNavTab.home,
-            onTap: () => _goTo(context, '/home'),
-          ),
-          _NavButton(
-            icon: Icons.route,
-            label: 'Rides',
-            isActive: activeTab == NeoRiderNavTab.rides,
-            onTap: () => _goTo(context, '/rides'),
-          ),
-          Transform.translate(
-            offset: const Offset(0, -24),
-            child: GestureDetector(
-              onTap: () => _goTo(context, '/live-ride'),
-              child: Column(
-                children: [
-                  const _StartRideButton(),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Start Ride',
-                    style: TextStyle(
-                      color: activeTab == NeoRiderNavTab.liveRide
-                          ? green
-                          : Colors.white70,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
+    return SafeArea(
+      top: false,
+      child: Container(
+        height: 76,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          color: dark,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.25),
+              blurRadius: 14,
             ),
-          ),
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              _NavButton(
-                icon: activeTab == NeoRiderNavTab.alerts
-                    ? Icons.notifications
-                    : Icons.notifications_none,
-                label: 'Alerts',
-                isActive: activeTab == NeoRiderNavTab.alerts,
-                onTap: () => _goTo(context, '/alerts'),
-              ),
-              Positioned(
-                right: 12,
-                top: 7,
-                child: Container(
-                  width: 24,
-                  height: 24,
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Center(
-                    child: Text(
-                      '3',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+          ],
+        ),
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.center,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: _NavButton(
+                    icon: Icons.home_outlined,
+                    label: 'Home',
+                    isActive: activeTab == NeoRiderNavTab.home,
+                    onTap: () => _goTo(context, '/home'),
                   ),
                 ),
+                Expanded(
+                  child: _NavButton(
+                    icon: Icons.route,
+                    label: 'Rides',
+                    isActive: activeTab == NeoRiderNavTab.rides,
+                    onTap: () => _goTo(context, '/rides'),
+                  ),
+                ),
+                const SizedBox(width: 68),
+                Expanded(
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      _NavButton(
+                        icon: activeTab == NeoRiderNavTab.alerts
+                            ? Icons.notifications
+                            : Icons.notifications_none,
+                        label: 'Alerts',
+                        isActive: activeTab == NeoRiderNavTab.alerts,
+                        onTap: () => _goTo(context, '/alerts'),
+                      ),
+                      Positioned(
+                        right: 12,
+                        top: 7,
+                        child: Container(
+                          width: 24,
+                          height: 24,
+                          decoration: const BoxDecoration(
+                            color: Colors.red,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Center(
+                            child: Text(
+                              '3',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: _NavButton(
+                    icon: Icons.person_outline,
+                    label: 'Profile',
+                    isActive: activeTab == NeoRiderNavTab.profile,
+                    onTap: () => _goTo(context, '/profile'),
+                  ),
+                ),
+              ],
+            ),
+            Positioned(
+              top: -20,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => _goTo(context, '/live-ride'),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const _StartRideButton(),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Start Ride',
+                      style: TextStyle(
+                        color: activeTab == NeoRiderNavTab.liveRide
+                            ? green
+                            : Colors.white70,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
-          _NavButton(
-            icon: Icons.person_outline,
-            label: 'Profile',
-            isActive: activeTab == NeoRiderNavTab.profile,
-            onTap: () => _goTo(context, '/profile'),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -132,8 +144,8 @@ class _StartRideButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 78,
-      height: 78,
+      width: 62,
+      height: 62,
       decoration: const BoxDecoration(
         color: NeoRiderBottomNav.green,
         shape: BoxShape.circle,
@@ -141,7 +153,7 @@ class _StartRideButton extends StatelessWidget {
       child: const Icon(
         Icons.sports_motorsports,
         color: Colors.white,
-        size: 40,
+        size: 32,
       ),
     );
   }
@@ -162,25 +174,35 @@ class _NavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            color: isActive ? NeoRiderBottomNav.green : Colors.white70,
-            size: 31,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            style: TextStyle(
+      borderRadius: BorderRadius.circular(20),
+      child: SizedBox(
+        height: 64,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
               color: isActive ? NeoRiderBottomNav.green : Colors.white70,
-              fontSize: 14,
+              size: 25,
             ),
-          ),
-        ],
+            const SizedBox(height: 3),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                label,
+                maxLines: 1,
+                style: TextStyle(
+                  color: isActive ? NeoRiderBottomNav.green : Colors.white70,
+                  fontSize: 12,
+                  fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

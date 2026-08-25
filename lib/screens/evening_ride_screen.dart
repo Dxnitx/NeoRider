@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/neorider_bottom_nav.dart';
+import '../utils/responsive.dart';
 
 class EveningRideScreen extends StatelessWidget {
   const EveningRideScreen({super.key});
@@ -13,6 +14,7 @@ class EveningRideScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final responsive = NeoResponsive.of(context);
     return Scaffold(
       backgroundColor: lightBg,
       body: SafeArea(
@@ -21,10 +23,11 @@ class EveningRideScreen extends StatelessWidget {
             _topBar(context),
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(18),
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.all(responsive.horizontalPadding),
                 child: Column(
                   children: [
-                    _scoreCard(),
+                    _scoreCard(context),
                     const SizedBox(height: 18),
                     _rideSummary(),
                     const SizedBox(height: 18),
@@ -44,9 +47,7 @@ class EveningRideScreen extends StatelessWidget {
       ),
       bottomNavigationBar: const Padding(
         padding: EdgeInsets.all(16),
-        child: NeoRiderBottomNav(
-          activeTab: NeoRiderNavTab.rides,
-        ),
+        child: NeoRiderBottomNav(activeTab: NeoRiderNavTab.rides),
       ),
     );
   }
@@ -76,14 +77,17 @@ class EveningRideScreen extends StatelessWidget {
     );
   }
 
-  Widget _scoreCard() {
+  Widget _scoreCard(BuildContext context) {
+    final responsive = NeoResponsive.of(context);
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: dark,
         borderRadius: BorderRadius.circular(22),
       ),
-      child: Row(
+      child: Flex(
+        direction: responsive.width < 600 ? Axis.vertical : Axis.horizontal,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
             width: 135,
@@ -121,8 +125,14 @@ class EveningRideScreen extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 26),
-          const Expanded(
+          SizedBox(
+            width: responsive.width < 600 ? 0 : 26,
+            height: responsive.width < 600 ? 18 : 0,
+          ),
+          SizedBox(
+            width: responsive.width < 600
+                ? double.infinity
+                : responsive.width - 360,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -146,7 +156,11 @@ class EveningRideScreen extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.warning_amber_rounded, color: orange, size: 78),
+          SizedBox(
+            width: responsive.width < 600 ? 0 : 14,
+            height: responsive.width < 600 ? 14 : 0,
+          ),
+          const Icon(Icons.warning_amber_rounded, color: orange, size: 58),
         ],
       ),
     );
@@ -159,8 +173,10 @@ class EveningRideScreen extends StatelessWidget {
         children: [
           _sectionTitle(Icons.assignment_turned_in_outlined, 'Ride Summary'),
           const SizedBox(height: 24),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+          const Wrap(
+            alignment: WrapAlignment.spaceAround,
+            runSpacing: 18,
+            spacing: 18,
             children: [
               _SummaryItem(
                 icon: Icons.access_time,
@@ -215,7 +231,8 @@ class EveningRideScreen extends StatelessWidget {
           const _RiskRow(
             icon: Icons.nightlight_round,
             title: 'Low Light Conditions',
-            subtitle: 'Riding in low light can reduce\nvisibility and increase risks.',
+            subtitle:
+                'Riding in low light can reduce\nvisibility and increase risks.',
             badge: 'High Risk',
             badgeColor: red,
           ),
@@ -440,10 +457,7 @@ class _SummaryItem extends StatelessWidget {
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 6),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 14, color: Colors.grey),
-        ),
+        Text(label, style: const TextStyle(fontSize: 14, color: Colors.grey)),
       ],
     );
   }
