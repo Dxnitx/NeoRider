@@ -235,12 +235,19 @@ class HomeScreen extends StatelessWidget {
                                 direction: useVerticalHero
                                     ? Axis.vertical
                                     : Axis.horizontal,
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                crossAxisAlignment: useVerticalHero
+                                    ? CrossAxisAlignment.stretch
+                                    : CrossAxisAlignment.center,
                                 children: [
                                   SizedBox(
                                     width: useVerticalHero
                                         ? null
-                                        : screenWidth - 220,
+                                        : screenWidth -
+                                              (responsive.horizontalPadding *
+                                                  2) -
+                                              48 -
+                                              12 -
+                                              145,
                                     child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -272,33 +279,38 @@ class HomeScreen extends StatelessWidget {
                                           ),
                                         ),
                                         const SizedBox(height: 28),
-                                        Container(
-                                          width: 180,
-                                          height: 58,
-                                          decoration: BoxDecoration(
-                                            color: green,
-                                            borderRadius: BorderRadius.circular(
-                                              18,
-                                            ),
+                                        GestureDetector(
+                                          onTap: () => Navigator.pushNamed(
+                                            context,
+                                            '/ride-setup',
                                           ),
-                                          child: const Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                "Start Ride",
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 22,
-                                                  fontWeight: FontWeight.bold,
+                                          child: Container(
+                                            width: 180,
+                                            height: 58,
+                                            decoration: BoxDecoration(
+                                              color: green,
+                                              borderRadius:
+                                                  BorderRadius.circular(18),
+                                            ),
+                                            child: const Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  "Start Ride",
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 22,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
                                                 ),
-                                              ),
-                                              SizedBox(width: 10),
-                                              Icon(
-                                                Icons.arrow_forward,
-                                                color: Colors.white,
-                                              ),
-                                            ],
+                                                SizedBox(width: 10),
+                                                Icon(
+                                                  Icons.arrow_forward,
+                                                  color: Colors.white,
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                         const SizedBox(height: 20),
@@ -358,11 +370,17 @@ class HomeScreen extends StatelessWidget {
                           Row(
                             children: [
                               Expanded(
-                                child: quickCard(
-                                  Icons.sports_motorsports,
-                                  "Start Ride",
-                                  "Begin monitoring",
-                                  green,
+                                child: GestureDetector(
+                                  onTap: () => Navigator.pushNamed(
+                                    context,
+                                    '/ride-setup',
+                                  ),
+                                  child: quickCard(
+                                    Icons.sports_motorsports,
+                                    "Start Ride",
+                                    "Begin monitoring",
+                                    green,
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 14),

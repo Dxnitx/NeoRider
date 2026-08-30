@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
-import 'screens/live_ride_screen.dart';
+import 'screens/ride/live_ride_screen.dart';
+import 'screens/helmet/search_helmet_screen.dart';
 import 'screens/rides_screen.dart';
 import 'screens/alert_screen.dart';
 import 'screens/profile_screen.dart';
@@ -33,6 +34,7 @@ class NeoRiderApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/home': (context) => const HomeScreen(),
         '/live-ride': (context) => const LiveRideScreen(),
+        '/ride-setup': (context) => const SearchHelmetScreen(),
         '/rides': (context) => const RidesScreen(),
         '/alerts': (context) => const AlertScreen(),
         '/profile': (context) => const ProfileScreen(),

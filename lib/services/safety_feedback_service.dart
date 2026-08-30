@@ -87,12 +87,11 @@ class BleSafetyFeedbackController implements SafetyFeedbackController {
   }
 
   SafetyControlCommand _commandFor(RiderSafetyState state) => switch (state) {
-    RiderSafetyState.safe => SafetyControlCommand.clear,
-    // Risk and accident-pending are UI-only states. They must never engage
-    // the helmet's accident actuators.
-    RiderSafetyState.risk => SafetyControlCommand.clear,
-    RiderSafetyState.accident => SafetyControlCommand.accident,
-    RiderSafetyState.unknown => SafetyControlCommand.clear,
+    RiderSafetyState.safe => safetyCommandForFinalState('SAFE'),
+    RiderSafetyState.risk => safetyCommandForFinalState('RISK'),
+    RiderSafetyState.accident =>
+      safetyCommandForFinalState('ACCIDENT_CONFIRMED'),
+    RiderSafetyState.unknown => safetyCommandForFinalState('UNKNOWN'),
   };
 
   void _publish(SafetyFeedbackSnapshot value) {

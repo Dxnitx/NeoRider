@@ -54,7 +54,9 @@ class NeoRiderBleService {
   BluetoothDevice? _device;
   BluetoothCharacteristic? _helmetCharacteristic;
   BluetoothCharacteristic? _chestCharacteristic;
-  BluetoothCharacteristic? _safetyControlCharacteristic;
+  BluetoothCharacteristic? _controlCharacteristic;
+  Future<BluetoothCharacteristic?>? _controlRediscovery;
+  bool _controlRefreshAttempted = false;
   bool _operationActive = false;
   bool _manualDisconnect = false;
   bool _disposed = false;
@@ -84,8 +86,9 @@ class NeoRiderBleService {
   String? get connectedDeviceName => _device?.platformName;
   String? get connectedDeviceId => _device?.remoteId.toString();
   bool get hasDiscoveredDevice => _device != null;
+  BluetoothCharacteristic? get controlCharacteristic => _controlCharacteristic;
   bool get canSendSafetyFeedback {
-    final characteristic = _safetyControlCharacteristic;
+    final characteristic = _controlCharacteristic;
     return state == NeoRiderBleState.connected &&
         characteristic != null &&
         (characteristic.properties.write ||
@@ -239,6 +242,19 @@ class NeoRiderBleService {
       timeout: const Duration(seconds: 15),
     );
     _log('CONNECTED');
+    _controlRefreshAttempted = false;
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      debugPrint('[BLE][GATT] clearing Android cache');
+      try {
+        await device.clearGattCache();
+        debugPrint('[BLE][GATT] cache cleared');
+      } catch (error, stackTrace) {
+        debugPrint('[BLE][GATT][ERROR] cache clear failed: $error');
+        debugPrint('$stackTrace');
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+    }
+    debugPrint('[BLE][GATT] discovering fresh services');
     await _discoverAndSubscribe(device);
   }
 
@@ -271,6 +287,7 @@ class NeoRiderBleService {
     _connectionSubscription = device.connectionState.listen((connectionState) {
       if (connectionState != BluetoothConnectionState.disconnected) return;
       _log('Disconnected: ${device.disconnectReason}');
+      _controlCharacteristic = null;
       _clearGattSubscriptions();
       if (!_manualDisconnect && state != NeoRiderBleState.scanning) {
         _updateState(
@@ -282,6 +299,7 @@ class NeoRiderBleService {
   }
 
   Future<void> _discoverAndSubscribe(BluetoothDevice device) async {
+    _controlCharacteristic = null;
     final services = await device.discoverServices();
     gattServiceCount = services.length;
     BluetoothService? targetService;
@@ -296,7 +314,16 @@ class NeoRiderBleService {
     }
     _log('SERVICES DISCOVERED');
 
+    final discoveredUuids = <String>[];
     for (final characteristic in targetService.characteristics) {
+      final uuid = characteristic.uuid.toString();
+      discoveredUuids.add(uuid);
+      debugPrint(
+        '[BLE][DISCOVERY] uuid=$uuid '
+        'write=${characteristic.properties.write} '
+        'writeWithoutResponse=${characteristic.properties.writeWithoutResponse} '
+        'notify=${characteristic.properties.notify}',
+      );
       if (characteristic.uuid == helmetUuid) {
         _helmetCharacteristic = characteristic;
         _log('HELMET CHARACTERISTIC FOUND');
@@ -304,8 +331,21 @@ class NeoRiderBleService {
         _chestCharacteristic = characteristic;
         _log('CHEST CHARACTERISTIC FOUND');
       } else if (characteristic.uuid == safetyControlUuid) {
-        _safetyControlCharacteristic = characteristic;
-        debugPrint('[BLE][CONTROL] characteristic found');
+        _controlCharacteristic = characteristic;
+        debugPrint(
+          '[BLE][CONTROL] characteristic found uuid=${characteristic.uuid}',
+        );
+        debugPrint(
+          '[BLE][CONTROL] write=${characteristic.properties.write} '
+          'writeWithoutResponse='
+          '${characteristic.properties.writeWithoutResponse}',
+        );
+      }
+    }
+    if (_controlCharacteristic == null) {
+      debugPrint('[BLE][CONTROL] characteristic NOT FOUND after discovery');
+      for (final uuid in discoveredUuids) {
+        debugPrint('[BLE][CONTROL][ERROR] discovered uuid=$uuid');
       }
     }
     if (_helmetCharacteristic == null) {
@@ -331,7 +371,7 @@ class NeoRiderBleService {
   /// Writes one idempotent control byte on the optional hardware-feedback
   /// channel. Failure is isolated from sensor notification subscriptions.
   Future<bool> sendSafetyCommand(SafetyControlCommand command) async {
-    final characteristic = _safetyControlCharacteristic;
+    final characteristic = _controlCharacteristic;
     if (state != NeoRiderBleState.connected || characteristic == null) {
       debugPrint('[BLE][CONTROL] write failed: channel unavailable');
       return false;
@@ -342,17 +382,92 @@ class NeoRiderBleService {
       debugPrint('[BLE][CONTROL] write failed: characteristic is not writable');
       return false;
     }
-    debugPrint('[BLE][CONTROL] writing ${command.hex}');
     try {
+      debugPrint(
+        '[BLE][CONTROL][WRITE] uuid=${characteristic.uuid} '
+        'command=${command.hex}',
+      );
       await characteristic.write([
         command.byteValue,
       ], withoutResponse: supportsWithoutResponse);
-      debugPrint('[BLE][CONTROL] write success');
+      debugPrint('[BLE][CONTROL][WRITE] success command=${command.hex}');
       return true;
-    } catch (error) {
-      debugPrint('[BLE][CONTROL] write failed: $error');
+    } catch (error, stackTrace) {
+      debugPrint(
+        '[BLE][CONTROL][WRITE] failed command=${command.hex} error=$error',
+      );
+      debugPrint('$stackTrace');
       return false;
     }
+  }
+
+  /// Refreshes only the cached control characteristic on the existing
+  /// connection. Sensor listeners and notification subscriptions are untouched.
+  Future<BluetoothCharacteristic?> refreshControlCharacteristic() async {
+    final cached = _controlCharacteristic;
+    if (cached != null) return cached;
+
+    final pending = _controlRediscovery;
+    if (pending != null) return pending;
+    if (_controlRefreshAttempted) return null;
+
+    _controlRefreshAttempted = true;
+    final refresh = _rediscoverControlCharacteristic();
+    _controlRediscovery = refresh;
+    try {
+      return await refresh;
+    } finally {
+      if (identical(_controlRediscovery, refresh)) {
+        _controlRediscovery = null;
+      }
+    }
+  }
+
+  Future<BluetoothCharacteristic?> _rediscoverControlCharacteristic() async {
+    final device = _device;
+    if (device == null || state != NeoRiderBleState.connected) return null;
+
+    final services = await device.discoverServices();
+    final targetService = services
+        .where((service) => service.uuid == serviceUuid)
+        .firstOrNull;
+    if (targetService == null) {
+      debugPrint('[BLE][CONTROL][ERROR] NeoRider service NOT FOUND');
+      return null;
+    }
+
+    for (final characteristic in targetService.characteristics) {
+      debugPrint(
+        '[BLE][DISCOVERY] uuid=${characteristic.uuid} '
+        'write=${characteristic.properties.write} '
+        'writeWithoutResponse=${characteristic.properties.writeWithoutResponse} '
+        'notify=${characteristic.properties.notify}',
+      );
+      if (characteristic.uuid == safetyControlUuid) {
+        _controlCharacteristic = characteristic;
+        debugPrint(
+          '[BLE][CONTROL] characteristic found uuid=${characteristic.uuid}',
+        );
+        debugPrint(
+          '[BLE][CONTROL] write=${characteristic.properties.write} '
+          'writeWithoutResponse='
+          '${characteristic.properties.writeWithoutResponse}',
+        );
+      }
+    }
+
+    if (_controlCharacteristic == null) {
+      debugPrint('[BLE][CONTROL] characteristic NOT FOUND after discovery');
+      for (final characteristic in targetService.characteristics) {
+        debugPrint(
+          '[BLE][CONTROL][ERROR] discovered uuid=${characteristic.uuid} '
+          'write=${characteristic.properties.write} '
+          'writeWithoutResponse=${characteristic.properties.writeWithoutResponse} '
+          'notify=${characteristic.properties.notify}',
+        );
+      }
+    }
+    return _controlCharacteristic;
   }
 
   void _handlePacket(List<int> value, {required bool isHelmet}) {
@@ -460,6 +575,7 @@ class NeoRiderBleService {
   Future<void> disconnect() async {
     if (_disposed) return;
     _manualDisconnect = true;
+    _controlCharacteristic = null;
     await _stopScanAndListener();
     await _clearGattSubscriptions();
     final device = _device;
@@ -496,7 +612,6 @@ class NeoRiderBleService {
     _chestSubscription = null;
     _helmetCharacteristic = null;
     _chestCharacteristic = null;
-    _safetyControlCharacteristic = null;
   }
 
   Future<void> _cancelConnectionSubscription() async {

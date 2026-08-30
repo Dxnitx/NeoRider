@@ -20,6 +20,7 @@ class NeoRiderApiService {
   final HttpClient _client = HttpClient()
     ..connectionTimeout = const Duration(seconds: 10);
   bool _disposed = false;
+  int _nextLiveRequestId = 0;
 
   Future<bool> checkHealth() async {
     final request = await _client.getUrl(_uri('/'));
@@ -37,7 +38,15 @@ class NeoRiderApiService {
       _postReading('helmet', pair.helmet),
       _postReading('chest', pair.chest),
     ]);
-    final results = responses.map(_parseResult).toList(growable: false);
+    final results = responses
+        .map(
+          (response) => _parseResult(
+            response.json,
+            requestId: response.requestId,
+            device: response.device,
+          ),
+        )
+        .toList(growable: false);
     return results.reduce((best, candidate) {
       final bestRank =
           (best.finalState == null ? 0 : 2000) +
@@ -53,10 +62,9 @@ class NeoRiderApiService {
     });
   }
 
-  Future<Map<String, dynamic>> _postReading(
-    String device,
-    BleSensorReading reading,
-  ) async {
+  Future<({int requestId, String device, Map<String, dynamic> json})>
+  _postReading(String device, BleSensorReading reading) async {
+    final requestId = ++_nextLiveRequestId;
     final request = await _client.postUrl(_uri('/sensor/live'));
     request.headers.contentType = ContentType.json;
     request.write(
@@ -80,6 +88,8 @@ class NeoRiderApiService {
     );
     final response = await request.close().timeout(const Duration(seconds: 60));
     final body = await utf8.decoder.bind(response).join();
+    debugPrint('[API][LIVE] status=${response.statusCode}');
+    debugPrint('[API][LIVE] body=$body');
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw HttpException('Status ${response.statusCode}: $body');
     }
@@ -87,10 +97,14 @@ class NeoRiderApiService {
     if (decoded is! Map<String, dynamic>) {
       throw const FormatException('Expected a JSON object');
     }
-    return decoded;
+    return (requestId: requestId, device: device, json: decoded);
   }
 
-  BackendResult _parseResult(Map<String, dynamic> json) {
+  BackendResult _parseResult(
+    Map<String, dynamic> json, {
+    required int requestId,
+    required String device,
+  }) {
     final rawPrediction = json['prediction'];
     PredictionResult? prediction;
     if (rawPrediction is Map) {
@@ -110,7 +124,7 @@ class NeoRiderApiService {
         modelUsed: json['model_used']?.toString(),
       );
     }
-    return BackendResult(
+    final result = BackendResult(
       status: json['status']?.toString() ?? 'collecting',
       rideId: json['ride_id']?.toString() ?? rideId,
       helmetBufferSize: _int(json, 'helmet_buffer_size'),
@@ -127,14 +141,39 @@ class NeoRiderApiService {
       ),
       finalState: _nonEmptyString(json['final_state']),
       accidentStreak: (json['accident_streak'] as num?)?.toInt(),
-      impactGatePassed: json['impact_gate_passed'] as bool?,
+      impactGatePassed:
+          json['impact_gate_passed'] as bool? ?? json['impact_gate'] as bool?,
       isHelmetStationary: json['is_helmet_stationary'] as bool?,
       isChestStationary: json['is_chest_stationary'] as bool?,
       bothStationary: json['both_stationary'] as bool?,
       fusedPrediction: _nonEmptyString(json['fused_prediction']),
       fusedConfidence: (json['fused_confidence'] as num?)?.toDouble(),
       prediction: prediction,
+      requestId: requestId,
+      device: device,
     );
+    final safetyFields = <String>[
+      'final_state=${result.finalState}',
+      'fused_prediction=${result.fusedPrediction}',
+      'fused_confidence=${result.fusedConfidence}',
+      'status=${result.status}',
+      if (json.containsKey('helmet_prediction'))
+        'helmet_prediction=${json['helmet_prediction']}',
+      if (json.containsKey('chest_prediction'))
+        'chest_prediction=${json['chest_prediction']}',
+      'accident_streak=${result.accidentStreak}',
+      'impact_gate=${result.impactGatePassed}',
+      'is_helmet_stationary=${result.isHelmetStationary}',
+      'is_chest_stationary=${result.isChestStationary}',
+      'both_stationary=${result.bothStationary}',
+    ];
+    debugPrint('[API][PARSED] ${safetyFields.join(' ')}');
+    debugPrint(
+      '[SAFETY][INPUT] request=$requestId device=$device '
+      'status=${result.status} final_state=${result.finalState} '
+      'fused_prediction=${result.fusedPrediction}',
+    );
+    return result;
   }
 
   int _int(Map<String, dynamic> json, String key, {int fallback = 0}) =>

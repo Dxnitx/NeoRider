@@ -35,6 +35,8 @@ class BackendResult {
     this.fusedPrediction,
     this.fusedConfidence,
     this.prediction,
+    this.requestId,
+    this.device,
   });
 
   final String status;
@@ -52,6 +54,8 @@ class BackendResult {
   final String? fusedPrediction;
   final double? fusedConfidence;
   final PredictionResult? prediction;
+  final int? requestId;
+  final String? device;
 
-  bool get isCollecting => status.toLowerCase() == 'collecting';
+  bool get isCollecting => status.trim().toLowerCase() == 'collecting';
 }
